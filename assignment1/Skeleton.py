@@ -22,7 +22,8 @@ def softmax(z):
     """compute softmax of z"""
     shiftedExp = np.exp(z-np.max(z))
     return shiftedExp/np.sum(shiftedExp)
-
+def sigmoid(z):
+    return 1/(1+np.exp(-z))
 #PROBLEM 1
 def update_weights_perceptron(X, Y, weights, bias, lr):
     """
@@ -43,16 +44,20 @@ def update_weights_perceptron(X, Y, weights, bias, lr):
         #feed forward
         Z1 = np.dot(weights[0],X[t]) + bias[0]
         Y1 = np.maximum(0,Z1)#applying relu activation
+        
         output = softmax(Y1)#apply softmax on last layer
         loss  += -np.log(output[Y[t]])
-        oneHotEncoding = np.zeros(10)
-        oneHotEncoding[Y[t]] = 1
-        #back prop
-        gradDivY1 = output-Y[t]
+        
+        output[Y[t]] -=1 #equivalent to output - desired value
+        gradDivY1 = output
+        
         reluJacobian = np.zeros(10)
-        reluJacobian[Z1>=0]=1
-        reluJacobian = np.eye(10)*reluJacobian 
-        gradDivZ1 = np.dot(reluJacobian,gradDivY1)
+        reluJacobian[Z1>0]=1
+        
+        #no need to construct the jacobian matrix elementwise product will do
+        #reluJacobian = np.eye(10)*reluJacobian 
+        
+        gradDivZ1 = reluJacobian*gradDivY1
         gradb1 += gradDivZ1
         gradW1 += np.outer(X[t],gradDivZ1)
         
