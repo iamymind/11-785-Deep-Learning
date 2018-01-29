@@ -1,4 +1,3 @@
-#HANDLE YOUR IMPORTS HERE
 import sys
 import argparse
 import numpy
@@ -16,6 +15,7 @@ def softmax(z):
 
 #PROBLEM 1
 def load_data(filePath):
+	"""Load comma separeted file"""
 	X = []
 	Y = []
 	with open(filePath,'r') as file:
@@ -66,7 +66,7 @@ def update_weights_single_layer(X, Y, weights, bias, lr):
 
 	"""
 	update the weight and bias of a NN with a single sigmoid activation layer
-	and softmax output.eg. [ 784 > 100 > 10]
+	and softmax output. eg. [ 784 > 100 > 10]
 	Divergence measure: cross entropy
 	"""
 
@@ -113,6 +113,12 @@ def update_weights_single_layer(X, Y, weights, bias, lr):
 
 #PROBLEM 4
 def update_weights_double_layer(X, Y, weights, bias, lr):
+
+	"""
+	update the weight and bias of a NN with a N sigmoid activation layers
+	and softmax output. eg. [ 784 > 100 > ------>10]
+	Divergence measure: cross entropy
+	"""
 
 	#I intemidiate activations
 	I  = [X]
@@ -166,6 +172,12 @@ def update_weights_double_layer(X, Y, weights, bias, lr):
 #PROBLEM 5
 
 def update_weights_double_layer_act(X, Y, weights, bias, lr, activation):
+
+	"""
+	update the weight and bias of a NN with a N [sigmoid,relu,tanh] activation layers
+	and softmax output. eg. [ 784 > 100 > ------>10]
+	Divergence measure: cross entropy
+	"""
 
 	I  = [X]
 	T = len(Y)#batch size
@@ -232,6 +244,13 @@ def update_weights_double_layer_act(X, Y, weights, bias, lr, activation):
 
 #PROBLEM 6
 def update_weights_double_layer_act_mom(X, Y, weights, bias, lr, activation, momentum, epochs):
+
+	"""
+	update the weight and bias of a NN with a N [sigmoid,relu,tanh] activation layers
+	and softmax output. eg. [ 784 > 100 > ------>10]
+	Divergence measure: cross entropy
+	Momentum update
+	"""
 
 	I  = [X]
 	T = len(Y)#batch size
