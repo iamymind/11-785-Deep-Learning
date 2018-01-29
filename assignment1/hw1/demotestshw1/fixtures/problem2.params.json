@@ -1,0 +1,1 @@
+{"ACTIVATION": "sigmoid", "EPOCH_COUNT": "1", "MOMENTUM": "0", "ID": "problem2", "LEARNING_RATE": "0.1", "HIDDEN_SHAPE": [], "BATCH_SIZE": "0", "L2_REG": "0.0"}
