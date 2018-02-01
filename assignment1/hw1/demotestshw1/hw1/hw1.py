@@ -13,6 +13,14 @@ def softmax(z):
 	exp_z = np.exp(z-np.max(z,axis=0))
 	return exp_z/np.sum(exp_z,axis=1,keepdims=True)
 
+def softmax_unstable(z):
+	exp_z = np.exp(z)
+	return exp_z/np.sum(exp_z,axis=1,keepdims=True)
+
+
+def sigmoid(z):
+	return 1./(1+np.exp(-z))
+
 #PROBLEM 1
 def load_data(filePath):
 	"""Load comma separeted file"""
@@ -62,15 +70,12 @@ def update_weights_perceptron(X, Y, weights, bias, lr):
 #PROBLEM 3
 def update_weights_single_layer(X, Y, weights, bias, lr):
 
-	#INSERT YOUR CODE HERE    
-
 	"""
 	update the weight and bias of a NN with a single sigmoid activation layer
 	and softmax output. eg. [ 784 > 100 > 10]
 	Divergence measure: cross entropy
 	"""
 
-	#print("New")
 	updated_weights = [] 
 	updated_bias = []
 
@@ -130,8 +135,8 @@ def update_weights_double_layer(X, Y, weights, bias, lr):
 
 	for k in range(1,N):
 
-		Z = np.dot(I[k-1],weights[k-1]) + bias[k-1]
-		Y_ = expit(Z)
+		Z  = np.dot(I[k-1],weights[k-1]) + bias[k-1]
+		Y_ = sigmoid(Z)
 		I.append(Y_)
 
 	
@@ -191,7 +196,7 @@ def update_weights_double_layer_act(X, Y, weights, bias, lr, activation):
 		Z_ = np.dot(I[k-1],weights[k-1]) + bias[k-1]
 		Y_ = None
 		if activation == 'sigmoid':
-			Y_ = expit(Z_)
+			Y_ = sigmoid(Z_)
 		if activation == 'tanh':
 			Y_ = np.tanh(Z_)
 		if activation == 'relu':
@@ -263,19 +268,20 @@ def update_weights_double_layer_act_mom(X, Y, weights, bias, lr, activation, mom
 	updated_weights = weights
 	updated_bias    = bias
 
-	for l in range(N):#for every layer
+	for l in range(N):#for every layer initialize the deltas
 
 		delta_gradW.append(np.zeros_like(updated_weights[l]))
 		delta_gradb.append(np.zeros_like(updated_bias[l]))
 
 	for epoch in range(epochs):
-
+		print("epoch: ",epoch+1)
+		#Feed Forward
 		for k in range(1,N):
 
 			Z_ = np.dot(I[k-1],updated_weights[k-1]) + updated_bias[k-1]
 			Y_ = None
 			if activation == 'sigmoid':
-				Y_ = expit(Z_)
+				Y_ = sigmoid(Z_)
 			if activation == 'tanh':
 				Y_ = np.tanh(Z_)
 			if activation == 'relu':
@@ -286,15 +292,15 @@ def update_weights_double_layer_act_mom(X, Y, weights, bias, lr, activation, mom
 		#last layer 
 		ZN = np.dot(I[-1],updated_weights[-1]) + updated_bias[-1]
 		#softmax
-		output = softmax(ZN)	
+		output = softmax_unstable(ZN)#softmax(ZN)	
 		#computing loss	
 		loss   = np.sum(-np.log(output[[range(T),Y]]))/T
-
+		
 		gradDivYN = output
 		gradDivYN[[range(T),Y]] -= 1
 		gradDivYN /= T
 		gradDivY = gradDivYN
-
+		#back prop
 		for k in reversed(range(1,N+1)):
 
 			gradDivZ = None
@@ -319,12 +325,12 @@ def update_weights_double_layer_act_mom(X, Y, weights, bias, lr, activation, mom
 		
 			gradb = np.sum(gradDivZ,axis=0,keepdims=False)
 			gradW = np.dot(I[k-1].T,gradDivZ)
+			#Momentum update
+			delta_gradW[k-1] = momentum*delta_gradW[k-1] -lr*gradW
+			delta_gradb[k-1] = momentum*delta_gradb[k-1] -lr*gradb
+			#update weights
+			updated_weights[k-1] = updated_weights[k-1] + delta_gradW[k-1] 
+			updated_bias[k-1]    = updated_bias[k-1] + delta_gradb[k-1]
 
-			delta_gradW[k-1] = momentum*delta_gradW[k-1] - lr*gradW
-			delta_gradb[k-1] = momentum*delta_gradb[k-1] - lr*gradb
-
-			updated_weights[k-1] += delta_gradW[k-1] 
-			updated_bias[k-1]    += delta_gradb[k-1]
-		print(delta_gradW[0][500])
 	return updated_weights, updated_bias
 

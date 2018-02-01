@@ -30,7 +30,7 @@ def test_problem_6():
 	inputLoss,inputAccuracy = forward_and_compute_loss(X,Y,inputWeights,inputBias,float(params["LEARNING_RATE"]), params["ACTIVATION"])
 
 	weightsToTest, biasToTest = hw1.update_weights_double_layer_act_mom(X, Y, inputWeights, inputBias, float(params["LEARNING_RATE"]), params["ACTIVATION"], float(params["MOMENTUM"]), int(params["EPOCH_COUNT"]))
-
+	
 	correctLoss,correctAccuracy = forward_and_compute_loss(X,Y,finalWeights,finalBias,float(params["LEARNING_RATE"]), params["ACTIVATION"])
 
 	myLoss,myAccuracy = forward_and_compute_loss(X,Y,weightsToTest,biasToTest,float(params["LEARNING_RATE"]), params["ACTIVATION"])
@@ -38,8 +38,7 @@ def test_problem_6():
 	print("inputLoss:   ",inputLoss,  " inputAccuracy:   ",inputAccuracy)
 	print("correctLoss: ",correctLoss," correctAccuracy: ",correctAccuracy)
 	print("myLoss:      ",myLoss,     " myAccuracy:      ",myAccuracy)
-
-
+	
 	assert(isAllClose(finalWeights, weightsToTest))
 	assert(isAllClose(finalBias, biasToTest))
 
