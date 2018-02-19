@@ -1,3 +1,5 @@
 *.npy
 *.tar
 *.npz
+__pycache__/
+*.cache/
