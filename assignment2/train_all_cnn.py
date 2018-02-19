@@ -3,7 +3,12 @@ Refer to handout for details.
 - Build scripts to train your model
 - Submit your code to Autolab
 """
+import torch
+import torch.nn as nn
+import torch.utils.data as data_utils
 
+import numpy as np
+import hw2.all_cnn
 
 def write_results(predictions, output_file='predictions.txt'):
     """
@@ -20,9 +25,101 @@ def write_results(predictions, output_file='predictions.txt'):
             f.write("{}\n".format(y))
 
 
-def main(argv):
-    pass
+def load_data(path,data_type= 'train'):
 
+	if data_type == 'train':
+		xtrain = np.load(path + 'train_feats.npy')
+		ytrain = np.load(path + 'train_labels.npy')
+		return xtrain, ytrain
+	if data_type == 'test':
+		xtest = np.load(path + 'test_feats.npy')
+		return xtest
+	else:
+		print('unknown data type')
+		
+def to_tensor(numpy_array):
+    # Numpy array -> Tensor
+    return torch.from_numpy(numpy_array).float()
+    		
+def to_variable(tensor):
+    # Tensor -> Variable (on GPU if possible)
+    if torch.cuda.is_available():
+        # Tensor -> GPU Tensor
+        tensor = tensor.cuda()
+    return torch.autograd.Variable(tensor)
+        		
+def save_model(model, path):
+    torch.save(model.state_dict(), path)
+
+def main(tag):
+
+	lr = 1e-3
+	L2 = 1e-3
+	n_epochs = 2
+	momentum = 0.9
+	batch_size = 128
+	data_path = './dataset/'
+	log_path  = '../logs/' + tag
+	model_path = '../models/'+ tag + '.pt'
+	
+	model = hw2.all_cnn.all_cnn_module()        
+	optimizer = torch.optim.SGD(model.parameters(), 
+	lr=lr,momentum=momentum,nesterov=True,weight_decay=L2)
+	loss_fn = nn.NLLLoss() #
+	
+	if torch.cuda.is_available():
+		model = model.cuda()   
+		loss_fn = loss_fn.cuda()
+	
+	train_feats, train_labels = load_data(data_path, 'train')
+	test_feats = load_data(data_path,'test')
+	train_size = train_labels.shape[0]
+	print('Data loading done')
+	train = data_utils.TensorDataset(to_tensor(train_feats),
+			 to_tensor(train_labels))
+	train_loader = data_utils.DataLoader(train, 
+	batch_size=batch_size, shuffle=True)
+
+	log_numpy = []
+
+	for epoch in range(n_epochs):
+
+		epoch_loss = 0
+		correct = 0
+		model.train()
+		for batch_index, (data, label) in enumerate(train_loader):
+
+			optimizer.zero_grad()
+
+			X, Y = to_variable(data), to_variable(label)
+			
+			out  = model(X.view(batch_size, 3, 32, 32))
+			pred = out.data.max(1, keepdim=True)[1].int()
+			predicted = pred.eq(Y.data.view_as(pred).int())
+
+			correct += predicted.sum()
+			loss = loss_fn(out, Y.long())
+			loss.backward()
+			optimizer.step()
+			epoch_loss += loss.data.sum()
+			if (batch_index % 100)==0: 
+				print("batchs left : ",int(train_size/batch_size-batch_index))
+
+		total_loss  = epoch_loss*batch_size/train_size
+		train_error = 1 - correct/train_size
+		log_numpy.append([total_loss,train_error])
+
+		print("epoch: {0}, loss: {1:.8f}".format(epoch+1, total_loss))
+
+		try:
+			save_model(model,model_path)
+		except:
+			print("dumping model error!!")
+
+		try:
+			np.save(log_path+'.npy',np.array(log_numpy))
+		except:
+			print("dumping log error!!")
 
 if __name__ == '__main__':
-    main()
+	main('test')

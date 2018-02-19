@@ -52,5 +52,5 @@ def all_cnn_module():
 		nn.AvgPool2d(6),
 		Flatten()
     )
-    print(model)
+    
     return model
