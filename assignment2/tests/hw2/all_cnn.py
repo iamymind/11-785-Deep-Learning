@@ -3,10 +3,15 @@ from torch.nn import Sequential
 
 
 class Flatten(nn.Module):
-    """
-    Implement a simple custom module that reshapes (n, m, 1, 1) tensors to (n, m).
-    """
+	"""
+	Implement a simple custom module that reshapes (n, m, 1, 1) tensors to (n, m).
+	"""
+	def __init__(self):
+		super(Flatten, self).__init__()
 
+	def forward(self,x):
+		n,m = x.size()[0],x.size()[1]
+		return x.view(n,m)
 
 def all_cnn_module():
     """
@@ -21,4 +26,31 @@ def all_cnn_module():
     - Flatten
     :return: a nn.Sequential model
     """
-    return Sequential()
+
+    model = nn.Sequential(
+		nn.Dropout(0.2),
+		nn.Conv2d(3, 96, 3, 1, 1),
+		nn.ReLU(),
+		nn.Conv2d(96, 96, 3, 1, 1),
+		nn.ReLU(),
+		nn.Conv2d(96, 96, 3, stride=2, padding=1),
+		nn.ReLU(),
+		nn.Dropout(0.5),
+		nn.Conv2d(96, 192, 3, 1, 1),
+		nn.ReLU(),
+		nn.Conv2d(192, 192, 3, 1, 1),
+		nn.ReLU(),
+		nn.Conv2d(192, 192, 3, padding=1, stride=2),
+		nn.ReLU(),
+		nn.Dropout(0.5),
+		nn.Conv2d(192, 192, 3, padding=0, stride=1),
+		nn.ReLU(),
+		nn.Conv2d(192, 192, 1, padding=0, stride=1),
+		nn.ReLU(),
+		nn.Conv2d(192, 10, 1, padding=0, stride=1),
+		nn.ReLU(),
+		nn.AvgPool2d(6),
+		Flatten()
+    )
+    print(model)
+    return model
