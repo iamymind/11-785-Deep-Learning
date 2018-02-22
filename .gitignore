@@ -3,3 +3,4 @@
 *.npz
 __pycache__/
 *.cache/
+*.pt
