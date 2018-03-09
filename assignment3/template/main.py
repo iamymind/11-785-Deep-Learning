@@ -12,6 +12,7 @@ import utils
 import models
 
 def validate(model, val_loader, n_batchs):
+    
     model.eval()
     correct = 0  
     batch_index =0 
@@ -38,13 +39,13 @@ def main(argv):
                         help='output directory')    
     parser.add_argument('--epochs', type=int, default=1, metavar='N',
                         help='number of epochs to train')
-    parser.add_argument('--base-seq-len', type=int, default=10, metavar='N',
+    parser.add_argument('--base-seq-len', type=int, default=5, metavar='N',
                         help='Batch length'),
-    parser.add_argument('--min-seq-len', type=int, default=2, metavar='N',
+    parser.add_argument('--min-seq-len', type=int, default=1, metavar='N',
                         help='minimum batch length'),
     parser.add_argument('--seq-prob', type=int, default=0.92, metavar='N',
                         help='prob of being divided by 2'),
-    parser.add_argument('--seq-std', type=int, default=3, metavar='N',
+    parser.add_argument('--seq-std', type=int, default=2, metavar='N',
                         help='squence length std'),
     parser.add_argument('--hidden-dim', type=int, default=256, metavar='N',
                         help='Hidden dim')
@@ -71,7 +72,7 @@ def main(argv):
     
     word_count = len(vocabulary)
     
-    model      = models.LSTMModel(word_count, args)
+    model     = models.LSTMModel(word_count, args)
     loss_fn   = models.CrossEntropyLoss3D()
     
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
@@ -120,7 +121,7 @@ def main(argv):
         epoch_loss = 0
         batch_index = 0
         seq_len = 0
-
+        counter = 0 
         while (batch_index < n_batchs-1):
 
             optimizer.zero_grad() 
@@ -139,9 +140,11 @@ def main(argv):
 
             epoch_loss  += loss.data.sum()
             batch_index += seq_len
-
+            counter +=1
+            
+            print(loss.data.sum())
         train_acc   = correct/train_size      
-        train_loss  = epoch_loss*args.batch_size/train_size
+        train_loss  = epoch_loss/counter
         val_acc     = validate(model, val_data_loader, n_batchs_val)/val_size
         
         logging['loss'].append(train_loss)
