@@ -21,6 +21,7 @@ def test_prediction():
     fixture = np.load(fixture_path('prediction.npz'))
     inp = fixture['inp']
     targ = fixture['out']
+    print('targ: ', targ.shape)
     out = hw3.prediction.prediction(inp.copy())
     assert out.shape[0] == targ.shape[0]
     vocab = np.load(fixture_path('vocab.npy'))

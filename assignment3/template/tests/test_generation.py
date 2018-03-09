@@ -26,6 +26,7 @@ def test_generation():
     forward = 20
     n = inp.shape[0]
     pred = hw3.generation.generation(inp, forward)
+    print('pred shape: ', pred.shape)
     assert pred.shape[0] == n
     assert pred.shape[1] == forward
     vocab = np.load(fixture_path('vocab.npy'))
