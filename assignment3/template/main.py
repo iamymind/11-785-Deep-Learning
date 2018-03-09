@@ -29,7 +29,7 @@ def validate(model, val_loader, n_batchs):
 
 def main(argv):
     parser = argparse.ArgumentParser(description='WikiText-2 language modeling')
-    parser.add_argument('--batch-size', type=int, default=90, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=70, metavar='N',
                         help='input batch size for training (default: 90)'),
     parser.add_argument('--eval-batch-size', type=int, default=50, metavar='N',
                         help='input batch size for training (default: 50)'),
@@ -37,25 +37,25 @@ def main(argv):
                         help='output directory')
     parser.add_argument('--model-save-directory', type=str, default='models/',
                         help='output directory')    
-    parser.add_argument('--epochs', type=int, default=1, metavar='N',
+    parser.add_argument('--epochs', type=int, default=5, metavar='N',
                         help='number of epochs to train')
-    parser.add_argument('--base-seq-len', type=int, default=5, metavar='N',
+    parser.add_argument('--base-seq-len', type=int, default=70, metavar='N',
                         help='Batch length'),
-    parser.add_argument('--min-seq-len', type=int, default=1, metavar='N',
+    parser.add_argument('--min-seq-len', type=int, default=50, metavar='N',
                         help='minimum batch length'),
-    parser.add_argument('--seq-prob', type=int, default=0.92, metavar='N',
+    parser.add_argument('--seq-prob', type=int, default=0.95, metavar='N',
                         help='prob of being divided by 2'),
-    parser.add_argument('--seq-std', type=int, default=2, metavar='N',
+    parser.add_argument('--seq-std', type=int, default=6, metavar='N',
                         help='squence length std'),
-    parser.add_argument('--hidden-dim', type=int, default=256, metavar='N',
+    parser.add_argument('--hidden-dim', type=int, default=1150, metavar='N',
                         help='Hidden dim')
-    parser.add_argument('--embedding-dim', type=int, default=128, metavar='N',
+    parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
     parser.add_argument('--lr', type=int, default=1e-4, metavar='N',
                         help='learning rate'),
-    parser.add_argument('--weight-decay', type=int, default=1e-6, metavar='N',
+    parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
-    parser.add_argument('--tag', type=str, default='wikitext-test.pt', metavar='N',
+    parser.add_argument('--tag', type=str, default='lr-1e-2-base.pt', metavar='N',
                         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
@@ -76,10 +76,12 @@ def main(argv):
     loss_fn   = models.CrossEntropyLoss3D()
     
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
-    
+
     if not os.path.exists(checkpoint_path):
         model      = models.LSTMModel(word_count, args)
     else:
+        print("Using pre-trained model")
+        print("*"*90)
         model      = models.LSTMModel(word_count, args)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
@@ -107,8 +109,8 @@ def main(argv):
         
         epoch_time = time.time()    
         np.random.shuffle(train_data)
-        train_data_   = utils.batchify(utils.to_tensor(np.concatenate(train_data[:3])), args.batch_size)
-        val_data_     = utils.batchify(utils.to_tensor(np.concatenate(val_data[:1])), args.eval_batch_size)
+        train_data_   = utils.batchify(utils.to_tensor(np.concatenate(train_data)), args.batch_size)
+        val_data_     = utils.batchify(utils.to_tensor(np.concatenate(val_data)), args.eval_batch_size)
         train_data_loader  = utils.custom_data_loader(train_data_, args)
         val_data_loader    = utils.custom_data_loader(val_data_, args, evaluation=True)
         #number of words
@@ -136,13 +138,16 @@ def main(argv):
             correct  += predicted.sum()
 
             loss.backward()
+            #scale lr with respect the size of the seq_len
+            utils.adjust_learning_rate(optimizer, args, seq_len)
+            torch.nn.utils.clip_grad_norm(model.parameters(), 0.25)
             optimizer.step()
-
+            utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
+            
             epoch_loss  += loss.data.sum()
             batch_index += seq_len
             counter +=1
             
-            print(loss.data.sum())
         train_acc   = correct/train_size      
         train_loss  = epoch_loss/counter
         val_acc     = validate(model, val_data_loader, n_batchs_val)/val_size

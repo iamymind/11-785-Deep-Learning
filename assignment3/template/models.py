@@ -20,6 +20,7 @@ class LSTMModel(nn.Module):
         self.projection = nn.Linear(in_features=args.embedding_dim, out_features=word_count)
         #weight tieing
         self.embedding.weight = self.projection.weight
+        self.init_embedding()
         
     def forward(self, x, forward=0, stochastic=False):
         
@@ -31,7 +32,7 @@ class LSTMModel(nn.Module):
             states.append(state)
         h = self.projection(h)
         if stochastic:
-            gumbel = Variable(utils.sample_gumbel(shape=h.size(), out=h.data.new()))
+            gumbel = utils.to_variable(utils.sample_gumbel(shape=h.size(), out=h.data.new()))
             h += gumbel
         logits = h
         if forward > 0:
@@ -44,13 +45,16 @@ class LSTMModel(nn.Module):
                     states[j] = state
                 h = self.projection(h)
                 if stochastic:
-                    gumbel = Variable(utils.sample_gumbel(shape=h.size(), out=h.data.new()))
+                    gumbel = utils.to_variable(utils.sample_gumbel(shape=h.size(), out=h.data.new()))
                     h += gumbel
                 outputs.append(h)
                 h = torch.max(h, dim=2)[1] + 1
             logits = torch.cat([logits] + outputs, dim=1)
         return logits
-    
+    def init_embedding(self):
+        self.embedding.weight.data.uniform_(-0.1, 0.1)
+        self.projection.bias.data.fill_(0)
+        
 class CrossEntropyLoss3D(nn.CrossEntropyLoss):
     def forward(self, input, target):
         return super(CrossEntropyLoss3D, self).forward(input.view(-1, input.size()[2]), target.view(-1))

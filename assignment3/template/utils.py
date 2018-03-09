@@ -16,6 +16,12 @@ def to_variable(tensor):
         tensor = tensor.cuda()
     return torch.autograd.Variable(tensor)
 
+def adjust_learning_rate(optimizer, args, seq_len):
+    """Sets the learning rate to the initial LR decayed by the ration of current seq-length and the original"""
+    lr = args.lr * (seq_len/args.base_seq_len)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
 def sample_gumbel(shape, eps=1e-10, out=None):
     """
     Sample from Gumbel(0, 1)
@@ -48,8 +54,8 @@ def custom_data_loader(data, args, evaluation=False):
             seq_len = args.base_seq_len if m else args.base_seq_len//2
             seq_len = max(args.min_seq_len, int(np.random.normal(seq_len, args.seq_std)))
             seq_len = min(seq_len, len(data) - 1 - index)
-        X    = Variable(data[index:index+seq_len], volatile=evaluation)
-        y    = Variable(data[index+1:index+1+seq_len])
+        X    = to_variable(data[index:index+seq_len])
+        y    = to_variable(data[index+1:index+1+seq_len])
         index += seq_len
 
         yield (X, y, seq_len)
