@@ -1,4 +1,4 @@
-*.npy*
+*.pt.npy
 *.tar
 *.npz
 __pycache__/

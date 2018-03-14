@@ -11,19 +11,23 @@ import matplotlib.pyplot as plt
 import utils
 import models
 
-def validate(model, val_loader, n_batchs):
+def validate(model, val_loader, n_batchs, eval_batch_size=50):
     
-    model.eval()
-    correct = 0  
+    model.eval() 
     batch_index =0 
+    hidden = model.init_hidden(eval_batch_size)
+    val_loss = 0
+    counter = 0 
     while (batch_index < n_batchs-1):
+        
         X, y, seq_len = next(val_loader)
-        out  = model(X)
-        pred      = out.data.max(2)[1].int().view(1,-1)
-        predicted = pred.eq(y.data.view_as(pred).int())
-        correct  += predicted.sum()
+        out, hidden = model(X, hidden)
+        val_loss += loss_fn(out, y)
+        hidden = repackage_hidden(hidden)
         batch_index+= seq_len
-    return correct
+        counter+=1
+        
+    return val_loss/counter
 
 #def train(args, train_data, val_data, model, optimizer, loss_fn):
 
@@ -55,7 +59,7 @@ def main(argv):
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
-    parser.add_argument('--tag', type=str, default='lr-1e-2-base.pt', metavar='N',
+    parser.add_argument('--tag', type=str, default='testing.pt', metavar='N',
                         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
@@ -65,24 +69,24 @@ def main(argv):
     
     #load dataset
     train_data, val_data, vocabulary = (
-                                        np.load('../dataset/wiki.train.npy'),
-                                        np.load('../dataset/wiki.valid.npy'),
+                                        np.load('../dataset/wiki.train.npy')[:2],
+                                        np.load('../dataset/wiki.valid.npy')[:1],
                                         np.load('../dataset/vocab.npy')
                                        )
     
     word_count = len(vocabulary)
     
-    model     = models.LSTMModel(word_count, args)
+    model     = models.LSTMModelV2(word_count=word_count, embedding_dim=embedding_dim, hidden_dim=hidden_dim)
     loss_fn   = models.CrossEntropyLoss3D()
     
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model      = models.LSTMModel(word_count, args)
+        model = models.LSTMModelV2(word_count=word_count, embedding_dim=embedding_dim, hidden_dim=hidden_dim)
     else:
         print("Using pre-trained model")
         print("*"*90)
-        model      = models.LSTMModel(word_count, args)
+        model = models.LSTMModelV2(word_count=word_count, embedding_dim=embedding_dim, hidden_dim=hidden_dim)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
     
@@ -124,13 +128,17 @@ def main(argv):
         batch_index = 0
         seq_len = 0
         counter = 0 
+        hidden = model.init_hidden(args.batch_size)
+
         while (batch_index < n_batchs-1):
 
             optimizer.zero_grad() 
 
             X, y, seq_len = next(train_data_loader)
-
-            out  = model(X)
+            
+            hidden = utils.repackage_hidden(hidden)
+            model.zero_grad()
+            out, hidden = model(X, hidden)
             loss = loss_fn(out, y)
 
             pred      = out.data.max(2)[1].int().view(1,-1)
@@ -147,7 +155,7 @@ def main(argv):
             epoch_loss  += loss.data.sum()
             batch_index += seq_len
             counter +=1
-            
+            break
         train_acc   = correct/train_size      
         train_loss  = epoch_loss/counter
         val_acc     = validate(model, val_data_loader, n_batchs_val)/val_size
@@ -162,7 +170,7 @@ def main(argv):
         print('| epoch {:3d} | time: {:5.2f}s | valid acc {:5.2f} | train acc {:5.2f} |'
                 'train loss {:8.2f}'.format(epoch+1, (time.time() - epoch_time),
                                            val_acc, train_acc, train_loss))
-        
+        break
             
 if __name__ == '__main__':
     main(sys.argv[1:])

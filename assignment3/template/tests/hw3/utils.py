@@ -66,12 +66,19 @@ def print_generated(lines):
     for i, line in enumerate(lines):
         print("Generated text {}: {}".format(i, line))
             
-def generate(model, sequence_length, batch_size, args, stochastic=False, inp=None):
+def generate(model, sequence_length, batch_size, args, stochastic=False, inp=None, eval_batch_size=50):
     if inp is None:
         inp = Variable(torch.zeros(batch_size, 1)).long()
         if args.cuda:
             inp = inp.cuda()
     model.eval()
-    logits = model(inp, forward=sequence_length, stochastic=stochastic)
+    hidden = model.init_hidden(eval_batch_size)
+    logits, hidden = model(inp, hidden, forward=sequence_length, stochastic=stochastic)
     classes = torch.max(logits, dim=2)[1]
     return classes
+def repackage_hidden(h):
+	"""Wraps hidden states in new Variables, to detach them from their history."""
+	if type(h) == Variable:
+		return Variable(h.data)
+	else:
+		return tuple(repackage_hidden(v) for v in h)
