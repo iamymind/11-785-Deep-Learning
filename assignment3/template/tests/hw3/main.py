@@ -157,7 +157,7 @@ def main(argv):
             epoch_loss  += loss.data.sum()
             batch_index += seq_len
             counter +=1
-            break
+
         train_acc   = correct/train_size      
         train_loss  = epoch_loss/counter
         val_loss     = validate(model, val_data_loader, loss_fn, n_batchs_val)
@@ -173,7 +173,6 @@ def main(argv):
         #      train acc {:5.2f} |train loss {:8.2f}'.format(epoch+1, (time.time() - epoch_time),
         #                                   val_loss, train_acc, train_loss))
         print('val_loss: ', val_loss)
-        break
             
 if __name__ == '__main__':
     main(sys.argv[1:])
