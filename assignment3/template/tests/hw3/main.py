@@ -69,8 +69,8 @@ def main(argv):
     
     #load dataset
     train_data, val_data, vocabulary = (
-                                        np.load('./dataset/wiki.train.npy')[:2],
-                                        np.load('./dataset/wiki.valid.npy')[:1],
+                                        np.load('./dataset/wiki.train.npy'),
+                                        np.load('./dataset/wiki.valid.npy'),
                                         np.load('./dataset/vocab.npy')
                                        )
     
