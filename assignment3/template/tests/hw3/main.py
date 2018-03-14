@@ -172,7 +172,7 @@ def main(argv):
         #print('| epoch {:3d} | time: {:5.2f}s | valid acc {:5.2f} | 
         #      train acc {:5.2f} |train loss {:8.2f}'.format(epoch+1, (time.time() - epoch_time),
         #                                   val_loss, train_acc, train_loss))
-        print('val_loss: ', val_loss)
+        print('val_loss: ', val_loss.cpu().numpy())
             
 if __name__ == '__main__':
     main(sys.argv[1:])
