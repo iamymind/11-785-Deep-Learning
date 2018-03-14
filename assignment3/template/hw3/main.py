@@ -35,7 +35,7 @@ def main(argv):
                         help='input batch size for training (default: 50)'),
     parser.add_argument('--save-directory', type=str, default='output/wikitext-2',
                         help='output directory')
-    parser.add_argument('--model-save-directory', type=str, default='models/',
+    parser.add_argument('--model-save-directory', type=str, default='../models/',
                         help='output directory')    
     parser.add_argument('--epochs', type=int, default=5, metavar='N',
                         help='number of epochs to train')
@@ -65,9 +65,9 @@ def main(argv):
     
     #load dataset
     train_data, val_data, vocabulary = (
-                                        np.load('./dataset/wiki.train.npy'),
-                                        np.load('./dataset/wiki.valid.npy'),
-                                        np.load('./dataset/vocab.npy')
+                                        np.load('../dataset/wiki.train.npy'),
+                                        np.load('../dataset/wiki.valid.npy'),
+                                        np.load('../dataset/vocab.npy')
                                        )
     
     word_count = len(vocabulary)

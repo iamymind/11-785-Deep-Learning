@@ -87,7 +87,7 @@ if __name__ == '__main__':
     data = read_chunks(chunk_path)
     # Load the data
     state_dict = load_from_numpy(data)
-    model = models.LSTMModelV2(33278, 128, 256)
+    model = models.LSTMModelV2(33278, 400, 1150)
     # Load dictionary into your model
     model.load_state_dict(state_dict)
     print(model)

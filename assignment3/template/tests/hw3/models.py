@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 from torch.autograd import Variable
-import hw3.utils as utils
+import utils 
 
 class LSTMModel(nn.Module):
 

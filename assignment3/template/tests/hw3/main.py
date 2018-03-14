@@ -11,21 +11,21 @@ import matplotlib.pyplot as plt
 import utils
 import models
 
-def validate(model, val_loader, n_batchs):
+def validate(model, val_loader, n_batchs, loss_fn):
     
     model.eval()
     correct = 0  
-    batch_index =0 
+    batch_index =0
+    counter = 0
+    val_loss = 0
     while (batch_index < n_batchs-1):
         X, y, seq_len = next(val_loader)
         out  = model(X)
-        pred      = out.data.max(2)[1].int().view(1,-1)
-        predicted = pred.eq(y.data.view_as(pred).int())
-        correct  += predicted.sum()
+        loss = loss_fn(out, y)
+        val_loss+= loss.data.sum()
         batch_index+= seq_len
-    return correct
-
-#def train(args, train_data, val_data, model, optimizer, loss_fn):
+        counter +=1
+    return val_loss/counter
 
 def main(argv):
     parser = argparse.ArgumentParser(description='WikiText-2 language modeling')
@@ -53,9 +53,9 @@ def main(argv):
                         help='Embedding dim')
     parser.add_argument('--lr', type=int, default=1e-4, metavar='N',
                         help='learning rate'),
-    parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
+    parser.add_argument('--weight-decay', type=int, default=2e-5, metavar='N',
                         help='learning rate'),
-    parser.add_argument('--tag', type=str, default='lr-1e-2-base.pt', metavar='N',
+    parser.add_argument('--tag', type=str, default='valid.pt', metavar='N',
                         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
@@ -100,25 +100,28 @@ def main(argv):
     logging = dict()
     logging['loss']=[]
     logging['train_acc']=[]
-    logging['val_acc']=[]
+    logging['val_loss']=[]
     
-    
+    val_data_       = utils.batchify(utils.to_tensor(np.concatenate(val_data)), args.eval_batch_size)
+    val_data_loader = utils.custom_data_loader(val_data_, args, evaluation=True)
+    n_batchs_val  = len(val_data_)
+    print('Init validation........')
+    val_loss    = validate(model, val_data_loader, n_batchs_val, loss_fn)
+    print('val loss: ', val_loss)        
     model.train()
-    
+    utils.save_model(model, 'valid.pt')
     for epoch in range (args.epochs):
         
         epoch_time = time.time()    
         np.random.shuffle(train_data)
         train_data_   = utils.batchify(utils.to_tensor(np.concatenate(train_data)), args.batch_size)
-        val_data_     = utils.batchify(utils.to_tensor(np.concatenate(val_data)), args.eval_batch_size)
         train_data_loader  = utils.custom_data_loader(train_data_, args)
-        val_data_loader    = utils.custom_data_loader(val_data_, args, evaluation=True)
         #number of words
         train_size = train_data_.size(0)*train_data_.size(1)
         val_size   = val_data_.size(0)*val_data_.size(1)
 
         n_batchs      = len(train_data_)
-        n_batchs_val  = len(val_data_)
+        
         correct = 0
         epoch_loss = 0
         batch_index = 0
@@ -146,22 +149,25 @@ def main(argv):
             
             epoch_loss  += loss.data.sum()
             batch_index += seq_len
+            if counter % 30==0 and counter>0:print('| batch-index {:3d} | batch-loss:{:8.4f} '.format(counter, epoch_loss/counter))
             counter +=1
             
         train_acc   = correct/train_size      
         train_loss  = epoch_loss/counter
-        val_acc     = validate(model, val_data_loader, n_batchs_val)/val_size
+        print('validating........')
+        val_data_loader = utils.custom_data_loader(val_data_, args, evaluation=True)
+        val_loss    = validate(model, val_data_loader, n_batchs_val, loss_fn)
         
         logging['loss'].append(train_loss)
         logging['train_acc'].append(train_acc)
-        logging['val_acc'].append(val_acc)
-        utils.save_model(model, checkpoint_path)
+        logging['val_loss'].append(val_loss)
+        utils.save_model(model, 'valid.pt')
 
             
         print('=' * 83)
-        print('| epoch {:3d} | time: {:5.2f}s | valid acc {:5.2f} | train acc {:5.2f} |'
+        print('| epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | train acc {:5.2f} |'
                 'train loss {:8.2f}'.format(epoch+1, (time.time() - epoch_time),
-                                           val_acc, train_acc, train_loss))
+                                           val_loss, train_acc, train_loss))
         
             
 if __name__ == '__main__':
