@@ -12,19 +12,20 @@ import utils
 import models
 
 
-def validate(model, val_loader, n_batchs):
+def validate(model, val_loader, loss_fn, n_batchs):
 
     model.eval()
-    correct = 0
+    val_loss = 0
     batch_index = 0
+    counter = 0
     while (batch_index < n_batchs - 1):
         X, y, seq_len = next(val_loader)
         out = model(X)
-        pred = out.data.max(2)[1].int().view(1, -1)
-        predicted = pred.eq(y.data.view_as(pred).int())
-        correct += predicted.sum()
+        loss = loss_fn(out, y)
         batch_index += seq_len
-    return correct
+        val_loss += loss.data.sum()
+        counter+=1
+    return val_loss/counter
 
 # def train(args, train_data, val_data, model, optimizer, loss_fn):
 
@@ -120,7 +121,7 @@ def main(argv):
     logging = dict()
     logging['loss'] = []
     logging['train_acc'] = []
-    logging['val_acc'] = []
+    logging['val_loss'] = []
 
     model.train()
 
@@ -159,10 +160,6 @@ def main(argv):
             out = model(X)
             loss = loss_fn(out, y)
 
-            pred = out.data.max(2)[1].int().view(1, -1)
-            predicted = pred.eq(y.data.view_as(pred).int())
-            correct += predicted.sum()
-
             loss.backward()
             # scale lr with respect the size of the seq_len
             utils.adjust_learning_rate(optimizer, args, seq_len)
@@ -174,23 +171,20 @@ def main(argv):
             batch_index += seq_len
             counter += 1
 
-        train_acc = correct / train_size
         train_loss = epoch_loss / counter
-        val_acc = validate(model, val_data_loader, n_batchs_val) / val_size
+        val_loss = validate(model, val_data_loader, loss_fn, n_batchs_val) 
 
         logging['loss'].append(train_loss)
-        logging['train_acc'].append(train_acc)
-        logging['val_acc'].append(val_acc)
+        logging['val_loss'].append(val_loss)
         utils.save_model(model, checkpoint_path)
 
         print('=' * 83)
         print(
-            '|epoch {:3d}|time: {:5.2f}s|valid acc {:5.2f}|train acc {:5.2f}|'
+            '|epoch {:3d}|time: {:5.2f}s|valid loss {:5.2f}|'
             'train loss {:8.2f}'.format(
                 epoch + 1,
                 (time.time() - epoch_time),
-                val_acc,
-                train_acc,
+                val_loss,
                 train_loss))
 
 
