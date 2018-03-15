@@ -50,15 +50,15 @@ def main(argv):
                         help='Batch length'),
     parser.add_argument('--min-seq-len', type=int, default=50, metavar='N',
                         help='minimum batch length'),
-    parser.add_argument('--seq-prob', type=int, default=0.95, metavar='N',
+    parser.add_argument('--seq-prob', type=int, default=0.99, metavar='N',
                         help='prob of being divided by 2'),
-    parser.add_argument('--seq-std', type=int, default=6, metavar='N',
+    parser.add_argument('--seq-std', type=int, default=1, metavar='N',
                         help='squence length std'),
     parser.add_argument('--hidden-dim', type=int, default=1150, metavar='N',
                         help='Hidden dim')
     parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
-    parser.add_argument('--lr', type=int, default=1e-4, metavar='N',
+    parser.add_argument('--lr', type=int, default=20, metavar='N',
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
@@ -164,6 +164,10 @@ def main(argv):
             # scale lr with respect the size of the seq_len
             utils.adjust_learning_rate(optimizer, args, seq_len)
             torch.nn.utils.clip_grad_norm(model.parameters(), 0.25)
+            
+            for p in model.parameters():
+                p.data.add_(-args.lr, p.grad.data)
+                
             optimizer.step()
             utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
 
