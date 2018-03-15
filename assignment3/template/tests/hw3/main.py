@@ -141,9 +141,9 @@ def main(argv):
             out, hidden = model(X, hidden)
             loss = loss_fn(out, y)
 
-            pred      = out.data.max(2)[1].int().view(1,-1)
-            predicted = pred.eq(y.data.view_as(pred).int())
-            correct  += predicted.sum()
+            #pred      = out.data.max(2)[1].int().view(1,-1)
+            #predicted = pred.eq(y.data.view_as(pred).int())
+            #correct  += predicted.sum()
 
             loss.backward()
             #scale lr with respect the size of the seq_len
@@ -157,13 +157,14 @@ def main(argv):
             epoch_loss  += loss.data.sum()
             batch_index += seq_len
             counter +=1
+            if counter%30==0: print('epoch: ', counter, ' loss: ', epoch_loss/counter)
 
-        train_acc   = correct/train_size      
+        #train_acc   = correct/train_size      
         train_loss  = epoch_loss/counter
-        val_loss     = validate(model, val_data_loader, loss_fn, n_batchs_val)
+        val_loss    = validate(model, val_data_loader, loss_fn, n_batchs_val)
         
         logging['loss'].append(train_loss)
-        logging['train_acc'].append(train_acc)
+        #logging['train_acc'].append(train_acc)
         logging['val_acc'].append(val_loss)
         utils.save_model(model, checkpoint_path)
 
