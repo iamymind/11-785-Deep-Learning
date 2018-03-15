@@ -109,14 +109,15 @@ def main(argv):
     
     model.train()
     
+    val_data_     = utils.batchify(utils.to_tensor(np.concatenate(val_data)), args.eval_batch_size)
+    val_data_loader    = utils.custom_data_loader(val_data_, args, evaluation=True)   
+    
     for epoch in range (args.epochs):
         
         epoch_time = time.time()    
         np.random.shuffle(train_data)
         train_data_   = utils.batchify(utils.to_tensor(np.concatenate(train_data)), args.batch_size)
-        val_data_     = utils.batchify(utils.to_tensor(np.concatenate(val_data)), args.eval_batch_size)
         train_data_loader  = utils.custom_data_loader(train_data_, args)
-        val_data_loader    = utils.custom_data_loader(val_data_, args, evaluation=True)
         #number of words
         train_size = train_data_.size(0)*train_data_.size(1)
         val_size   = val_data_.size(0)*val_data_.size(1)
@@ -161,6 +162,7 @@ def main(argv):
 
         #train_acc   = correct/train_size      
         train_loss  = epoch_loss/counter
+        print('validating')
         val_loss    = validate(model, val_data_loader, loss_fn, n_batchs_val)
         
         logging['loss'].append(train_loss)
