@@ -34,13 +34,13 @@ class LSTMModel(nn.Module):
     def forward(self, x, forward=0, stochastic=False):
 
         h = x  # (n, t)
-        h = self.embedding(h)  # (n, t, c)
+        h = self.dropout(self.embedding(h))  # (n, t, c)
 
         states = []
         for rnn in self.rnns:
             h, state = rnn(h)
             states.append(state)
-        h = self.projection(h)
+        h = self.projection(self.dropout(h))
         if stochastic:
             gumbel = utils.to_variable(
                 utils.sample_gumbel(
@@ -52,11 +52,11 @@ class LSTMModel(nn.Module):
             outputs = []
             h = torch.max(logits[:, -1:, :], dim=2)[1] + 1
             for i in range(forward):
-                h = self.embedding(h)
+                h = self.dropout(self.embedding(h))
                 for j, rnn in enumerate(self.rnns):
                     h, state = rnn(h, states[j])
                     states[j] = state
-                h = self.projection(h)
+                h = self.projection(self.dropout(h))
                 if stochastic:
                     gumbel = utils.to_variable(
                         utils.sample_gumbel(
@@ -69,6 +69,7 @@ class LSTMModel(nn.Module):
 
     def init_embedding(self):
         self.embedding.weight.data.uniform_(-0.1, 0.1)
+        self.projection.weight.data.uniform_(-0.1, 0.1)
         self.projection.bias.data.fill_(0)
 
 
@@ -141,8 +142,7 @@ class LSTMModelV2(nn.Module):
 
     def init_embedding(self):
         self.embedding.weight.data.uniform_(-0.1, 0.1)
-        data = np.load('./dataset/bias.npy')
-        self.projection.bias.data=data
+        self.projection.bias.data.fill_(0)
 
 
 class CrossEntropyLoss3D(nn.CrossEntropyLoss):
