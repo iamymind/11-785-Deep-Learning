@@ -59,7 +59,7 @@ def main(argv):
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
-    parser.add_argument('--tag', type=str, default='testing.pt', metavar='N',
+    parser.add_argument('--tag', type=str, default='val.pt', metavar='N',
                         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
