@@ -141,7 +141,8 @@ class LSTMModelV2(nn.Module):
 
     def init_embedding(self):
         self.embedding.weight.data.uniform_(-0.1, 0.1)
-        self.projection.bias.data.fill_(0)
+        data = np.load('./dataset/bias.npy')
+        self.projection.bias.data=data
 
 
 class CrossEntropyLoss3D(nn.CrossEntropyLoss):
