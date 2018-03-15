@@ -169,6 +169,11 @@ def main(argv):
 
             epoch_loss += loss.data.sum()
             batch_index += seq_len
+            if counter%30==0:
+                print('|batch {:3d}|train loss{:5.2f}|'.format(
+                        counter, 
+                        epoch_loss/counter))
+                
             counter += 1
 
         train_loss = epoch_loss / counter
