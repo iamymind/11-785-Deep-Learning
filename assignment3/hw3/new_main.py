@@ -61,7 +61,7 @@ def main(argv):
                         help='prob of being divided by 2'),
     parser.add_argument('--seq-std', type=int, default=5, metavar='N',
                         help='squence length std'),
-    parser.add_argument('--hidden-dim', type=int, default=1150, metavar='N',
+    parser.add_argument('--hidden-dim', type=int, default=400, metavar='N',
                         help='Hidden dim')
     parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
