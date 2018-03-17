@@ -61,9 +61,9 @@ def main(argv):
                         help='prob of being divided by 2'),
     parser.add_argument('--seq-std', type=int, default=5, metavar='N',
                         help='squence length std'),
-    parser.add_argument('--hidden-dim', type=int, default=400, metavar='N',
+    parser.add_argument('--hidden-dim', type=int, default=200, metavar='N',
                         help='Hidden dim')
-    parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
+    parser.add_argument('--embedding-dim', type=int, default=200, metavar='N',
                         help='Embedding dim')
     parser.add_argument('--lr', type=int, default=20, metavar='N',
                         help='learning rate'),
@@ -96,11 +96,11 @@ def main(argv):
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model = models.LSTMModel(word_count, args)
+        model = models.LSTMModelSingle(word_count, args.embedding_dim, args.hidden_dim)
     else:
         print("Using pre-trained model")
         print("*" * 90)
-        model = models.LSTMModel(word_count, args)
+        model = models.LSTMModelSingle(word_count, args.embedding_dim, args.hidden_dim)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
 
@@ -160,17 +160,18 @@ def main(argv):
         batch_index = 0
         seq_len = 0
         counter = 0
+        hidden = model.init_hidden(args.batch_size)
         while (batch_index < n_batchs - 1):
 
             #optimizer.zero_grad()
 
             X, y, seq_len = next(train_data_loader)
             #print('X: ', X.shape, 'y: ', y.shape)
-            #hidden = repackage_hidden(hidden)
+            hidden = repackage_hidden(hidden)
             #out, hidden = model(X, hidden)
             model.zero_grad()
 
-            out = model(X)
+            out, hidden = model(X, hidden)
             
             loss = loss_fn(out.view(-1, word_count), y)
             

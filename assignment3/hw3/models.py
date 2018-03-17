@@ -91,6 +91,61 @@ class LSTMModel(nn.Module):
         self.projection.weight.data.uniform_(-0.1, 0.1)
         self.projection.bias.data = torch.from_numpy(word_logits)
 
+class LSTMModelSingle(nn.Module):
+
+    def __init__(self, word_count,embedding_dim, hidden_dim, dropout_prob=0.2):
+
+        super(LSTMModel, self).__init__()
+
+        self.word_count = word_count
+        self.dropout = nn.Dropout(dropout_prob)
+        self.embedding = nn.Embedding(
+            num_embeddings=word_count,
+            embedding_dim=args.embedding_dim)
+        self.rnn = nn.LSTM(embedding_dim, hidden_dim, 3, dropout=dropout_prob)
+
+        self.projection = nn.Linear(
+            in_features=args.embedding_dim,
+            out_features=word_count)
+        # weight tieing
+        self.embedding.weight = self.projection.weight
+        self.init_embedding()
+        
+        self.embedding_dim = embedding_dim
+        self.hidden_dim = hidden_dim
+
+    def forward(self, x, hidden, forward=0, stochastic=False):
+        emb = self.drop(self.encoder(input))
+        output, hidden = self.rnn(emb, hidden)
+        output = self.drop(output)
+        decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
+        return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
+    
+    def init_embedding(self):
+        # Load words and vocabulary
+        words = np.concatenate(np.load('dataset/wiki.train.npy'))
+        vocab = np.load('dataset/vocab.npy')
+
+        # Count each word
+        vocab_size = vocab.shape[0]
+        counter = Counter(words)
+        word_counts = np.array([counter[i] for i in range(vocab_size)], dtype=np.float32)
+        word_count = np.sum(word_counts)
+
+        # P(word)
+        word_probabilities = word_counts / word_count
+        # log(P(word))
+        epsilon = 1e-12
+        word_logits = np.log(word_probabilities + epsilon)
+
+        self.embedding.weight.data.uniform_(-0.1, 0.1)
+        self.projection.weight.data.uniform_(-0.1, 0.1)
+        self.projection.bias.data = torch.from_numpy(word_logits)
+    def init_hidden(self, bsz):
+        weight = next(self.parameters()).data
+        return (Variable(weight.new(3, bsz, self.hidden_dim).zero_()),
+                    Variable(weight.new(3, bsz, self.hidden_dim).zero_()))
+
 
 class LSTMModelV2(nn.Module):
 
