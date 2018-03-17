@@ -95,11 +95,11 @@ def main(argv):
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model = models.LSTMModel('LSTM',word_count, args)
+        model = models.LSTMModel(word_count, args)
     else:
         print("Using pre-trained model")
         print("*" * 90)
-        model = models.LSTMModel('LSTM',word_count, args)
+        model = models.LSTMModel(word_count, args)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
 
