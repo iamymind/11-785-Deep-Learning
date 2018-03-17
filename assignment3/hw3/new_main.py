@@ -95,11 +95,11 @@ def main(argv):
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model = models.RNNModel('LSTM',word_count,200,200,3, dropout=0.5, tie_weights=True)
+        model = models.LSTMModel('LSTM',word_count, args)
     else:
         print("Using pre-trained model")
         print("*" * 90)
-        model = models.RNNModel('LSTM',word_count,200,200,3, dropout=0.5, tie_weights=True)
+        model = models.LSTMModel('LSTM',word_count, args)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
 
@@ -131,7 +131,7 @@ def main(argv):
     logging['val_loss'] = []
 
     model.train()
-    hidden = model.init_hidden(args.batch_size)
+    #hidden = model.init_hidden(args.batch_size)
     
     for epoch in range(args.epochs):
 
@@ -165,7 +165,8 @@ def main(argv):
 
             X, y, seq_len = next(train_data_loader)
             hidden = repackage_hidden(hidden)
-            out, hidden = model(X, hidden)
+            #out, hidden = model(X, hidden)
+            out = model(X)
             
             loss = loss_fn(out, y)
             
@@ -182,7 +183,7 @@ def main(argv):
 
             epoch_loss += loss.data.sum()
             batch_index += seq_len
-            if counter%10==0 and counter!=0:
+            if counter%30==0 and counter!=0:
                 print('|batch {:3d}|train loss {:5.2f}|'.format(
                         counter, 
                         epoch_loss/counter))
