@@ -14,7 +14,7 @@ class LSTMModel(nn.Module):
         super(LSTMModel, self).__init__()
 
         self.word_count = word_count
-        #self.dropout = nn.Dropout(dropout_prob)
+        self.dropout = nn.Dropout(dropout_prob)
         self.embedding = nn.Embedding(
             num_embeddings=word_count,
             embedding_dim=args.embedding_dim)
@@ -37,13 +37,13 @@ class LSTMModel(nn.Module):
     def forward(self, x, forward=0, stochastic=False):
 
         h = x  # (n, t)
-        h = self.embedding(h)  # (n, t, c)
+        h = self.embedding(self.dropout(h))  # (n, t, c)
 
         states = []
         for rnn in self.rnns:
             h, state = rnn(h)
             states.append(state)
-        h = self.projection(h)
+        h = self.projection(self.dropout(h))
         if stochastic:
             gumbel = utils.to_variable(
                 utils.sample_gumbel(
@@ -55,11 +55,11 @@ class LSTMModel(nn.Module):
             outputs = []
             h = torch.max(logits[:, -1:, :], dim=2)[1] + 1
             for i in range(forward):
-                h = self.embedding(h)
+                h = self.embedding(self.dropout(h))
                 for j, rnn in enumerate(self.rnns):
                     h, state = rnn(h, states[j])
                     states[j] = state
-                h = self.projection(h)
+                h = self.projection(self.dropout(h))
                 if stochastic:
                     gumbel = utils.to_variable(
                         utils.sample_gumbel(

@@ -57,22 +57,22 @@ def main(argv):
                         help='Batch length'),
     parser.add_argument('--min-seq-len', type=int, default=50, metavar='N',
                         help='minimum batch length'),
-    parser.add_argument('--seq-prob', type=int, default=0.99, metavar='N',
+    parser.add_argument('--seq-prob', type=int, default=0.95, metavar='N',
                         help='prob of being divided by 2'),
-    parser.add_argument('--seq-std', type=int, default=1, metavar='N',
+    parser.add_argument('--seq-std', type=int, default=5, metavar='N',
                         help='squence length std'),
     parser.add_argument('--hidden-dim', type=int, default=1150, metavar='N',
                         help='Hidden dim')
     parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
-    parser.add_argument('--lr', type=int, default=1e-3, metavar='N',
+    parser.add_argument('--lr', type=int, default=1e-2, metavar='N',
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
     parser.add_argument(
         '--tag',
         type=str,
-        default='lr-1e-2-base.pt',
+        default='drop-out-training.pt',
         metavar='N',
         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -166,7 +166,7 @@ def main(argv):
             utils.to_tensor(
                 np.concatenate(val_data)),
             args.eval_batch_size)
-        train_data_loader = utils.custom_data_loader(train_data_, args, evaluation=True)
+        train_data_loader = utils.custom_data_loader(train_data_, args, evaluation=False)
         val_data_loader = utils.custom_data_loader(
             val_data_, args, evaluation=True)
         # number of words
@@ -193,14 +193,14 @@ def main(argv):
             
             loss.backward()
             # scale lr with respect the size of the seq_len
-            #utils.adjust_learning_rate(optimizer, args, seq_len)
+            utils.adjust_learning_rate(optimizer, args, seq_len)
             torch.nn.utils.clip_grad_norm(model.parameters(), 0.25)
             
             for p in model.parameters():
                 p.data.add_(-args.lr, p.grad.data)
                 
             optimizer.step()
-            #utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
+            utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
 
             epoch_loss += loss.data.sum()
             batch_index += seq_len
