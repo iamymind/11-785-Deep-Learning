@@ -166,7 +166,7 @@ def main(argv):
             X, y, seq_len = next(train_data_loader)
             hidden = repackage_hidden(hidden)
             out, hidden = model(X, hidden)
-            print(out.shape)
+            
             loss = loss_fn(out, y)
 
             loss.backward()
