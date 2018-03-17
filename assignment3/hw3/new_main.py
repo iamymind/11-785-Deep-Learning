@@ -12,6 +12,7 @@ import utils
 import models
 from torch.autograd import Variable
 import torch
+from collections import Counter
 
 def validate(model, val_loader, loss_fn, n_batchs):
 
@@ -62,7 +63,7 @@ def main(argv):
                         help='squence length std'),
     parser.add_argument('--hidden-dim', type=int, default=1150, metavar='N',
                         help='Hidden dim')
-    parser.add_argument('--embedding-dim', type=int, default=1150, metavar='N',
+    parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
     parser.add_argument('--lr', type=int, default=1e-2, metavar='N',
                         help='learning rate'),
@@ -87,6 +88,26 @@ def main(argv):
         np.load('./dataset/vocab.npy')
     )
 
+    # Count each word
+    vocab_size = vocabulary.shape[0]
+    counter = Counter(train_data)
+    word_counts = np.array([counter[i] for i in range(vocab_size)], dtype=np.float32)
+    word_count = np.sum(word_counts)
+
+    # P(word)
+    word_probabilities = word_counts / word_count
+    # log(P(word))
+    epsilon = 1e-12
+    word_logits = np.log(word_probabilities + epsilon)
+    
+    print('word logits: ', word_logits.shape)
+    
+    
+    
+    
+    
+    
+    
     word_count = len(vocabulary)
 
     #model = models.RNNModel(word_count, args)

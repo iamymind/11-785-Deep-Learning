@@ -2,6 +2,9 @@ import torch.nn as nn
 import torch
 from torch.autograd import Variable
 import utils
+from collections import Counter
+import numpy as np
+
 
 
 class LSTMModel(nn.Module):
@@ -68,9 +71,25 @@ class LSTMModel(nn.Module):
         return logits
 
     def init_embedding(self):
+        # Load words and vocabulary
+        words = np.concatenate(np.load('dataset/wiki.train.npy'))
+        vocab = np.load('dataset/vocab.npy')
+
+        # Count each word
+        vocab_size = vocab.shape[0]
+        counter = Counter(words)
+        word_counts = np.array([counter[i] for i in range(vocab_size)], dtype=np.float32)
+        word_count = np.sum(word_counts)
+
+        # P(word)
+        word_probabilities = word_counts / word_count
+        # log(P(word))
+        epsilon = 1e-12
+        word_logits = np.log(word_probabilities + epsilon)
+
         self.embedding.weight.data.uniform_(-0.1, 0.1)
         self.projection.weight.data.uniform_(-0.1, 0.1)
-        self.projection.bias.data.fill_(0)
+        self.projection.bias.data = word_logits
 
 
 class LSTMModelV2(nn.Module):
