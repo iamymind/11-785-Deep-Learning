@@ -37,7 +37,7 @@ class LSTMModel(nn.Module):
     def forward(self, x, forward=0, stochastic=False):
 
         h = x  # (n, t)
-        h = self.embedding(self.dropout(h))  # (n, t, c)
+        h = self.dropout(self.embedding(h))  # (n, t, c)
 
         states = []
         for rnn in self.rnns:
