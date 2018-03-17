@@ -89,7 +89,7 @@ class LSTMModel(nn.Module):
 
         self.embedding.weight.data.uniform_(-0.1, 0.1)
         self.projection.weight.data.uniform_(-0.1, 0.1)
-        self.projection.bias.data = word_logits
+        self.projection.bias.data = torch.from_numpy(word_logits)
 
 
 class LSTMModelV2(nn.Module):
