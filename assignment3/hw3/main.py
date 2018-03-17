@@ -159,7 +159,6 @@ def main(argv):
 
             out = model(X)
             loss = loss_fn(out, y)
-            print('loss: ', loss)
             loss.backward()
             # scale lr with respect the size of the seq_len
             utils.adjust_learning_rate(optimizer, args, seq_len)
