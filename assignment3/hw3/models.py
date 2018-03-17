@@ -95,7 +95,7 @@ class LSTMModelSingle(nn.Module):
 
     def __init__(self, word_count,embedding_dim, hidden_dim, dropout_prob=0.2):
 
-        super(LSTMModel, self).__init__()
+        super(LSTMModelSingle, self).__init__()
 
         self.word_count = word_count
         self.dropout = nn.Dropout(dropout_prob)
