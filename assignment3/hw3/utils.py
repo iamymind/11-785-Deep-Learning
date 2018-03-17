@@ -70,7 +70,7 @@ def custom_data_loader(data, args, evaluation=False):
                         seq_len, args.seq_std)))
             seq_len = min(seq_len, len(data) - 1 - index)
         X = to_variable(data[index:index + seq_len])
-        y = to_variable(data[index + 1:index + 1 + seq_len])
+        y = to_variable(data[index + 1:index + 1 + seq_len].view(-1))
         index += seq_len
 
         yield (X, y, seq_len)

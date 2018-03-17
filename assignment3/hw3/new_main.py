@@ -91,7 +91,7 @@ def main(argv):
     word_count = len(vocabulary)
 
     #model = models.RNNModel(word_count, args)
-    loss_fn = models.CrossEntropyLoss3D()
+    loss_fn = torch.nn.CrossEntropyLoss()
 
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
@@ -169,18 +169,18 @@ def main(argv):
             #out, hidden = model(X, hidden)
             out = model(X)
             
-            loss = loss_fn(out, y)
+            loss = loss_fn(out.view(-1, word_count), y)
             
             loss.backward()
             # scale lr with respect the size of the seq_len
-            utils.adjust_learning_rate(optimizer, args, seq_len)
+            #utils.adjust_learning_rate(optimizer, args, seq_len)
             torch.nn.utils.clip_grad_norm(model.parameters(), 0.25)
             
             for p in model.parameters():
                 p.data.add_(-args.lr, p.grad.data)
                 
             optimizer.step()
-            utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
+            #utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
 
             epoch_loss += loss.data.sum()
             batch_index += seq_len
