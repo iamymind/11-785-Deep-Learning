@@ -40,9 +40,9 @@ def repackage_hidden(h):
 def main(argv):
     parser = argparse.ArgumentParser(
         description='WikiText-2 language modeling')
-    parser.add_argument('--batch-size', type=int, default=70, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=20, metavar='N',
                         help='input batch size for training (default: 90)'),
-    parser.add_argument('--eval-batch-size', type=int, default=50, metavar='N',
+    parser.add_argument('--eval-batch-size', type=int, default=20, metavar='N',
                         help='input batch size for training (default: 50)'),
     parser.add_argument(
         '--save-directory',
@@ -53,9 +53,9 @@ def main(argv):
                         help='output directory')
     parser.add_argument('--epochs', type=int, default=5, metavar='N',
                         help='number of epochs to train')
-    parser.add_argument('--base-seq-len', type=int, default=70, metavar='N',
+    parser.add_argument('--base-seq-len', type=int, default=35, metavar='N',
                         help='Batch length'),
-    parser.add_argument('--min-seq-len', type=int, default=50, metavar='N',
+    parser.add_argument('--min-seq-len', type=int, default=35, metavar='N',
                         help='minimum batch length'),
     parser.add_argument('--seq-prob', type=int, default=0.95, metavar='N',
                         help='prob of being divided by 2'),
@@ -88,26 +88,6 @@ def main(argv):
         np.load('./dataset/vocab.npy')
     )
 
-    # Count each word
-    vocab_size = vocabulary.shape[0]
-    counter = Counter(np.concatenate(train_data))
-    word_counts = np.array([counter[i] for i in range(vocab_size)], dtype=np.float32)
-    word_count = np.sum(word_counts)
-
-    # P(word)
-    word_probabilities = word_counts / word_count
-    # log(P(word))
-    epsilon = 1e-12
-    word_logits = np.log(word_probabilities + epsilon)
-    
-    print('word logits: ', word_logits.shape)
-    
-    
-    
-    
-    
-    
-    
     word_count = len(vocabulary)
 
     #model = models.RNNModel(word_count, args)
@@ -166,7 +146,7 @@ def main(argv):
             utils.to_tensor(
                 np.concatenate(val_data)),
             args.eval_batch_size)
-        train_data_loader = utils.custom_data_loader(train_data_, args, evaluation=False)
+        train_data_loader = utils.custom_data_loader(train_data_, args, evaluation=True)
         val_data_loader = utils.custom_data_loader(
             val_data_, args, evaluation=True)
         # number of words
@@ -216,7 +196,7 @@ def main(argv):
 
         logging['loss'].append(train_loss)
         logging['val_loss'].append(val_loss)
-        utils.save_model(model, 'best_so_far.pt')
+        utils.save_model(model, checkpoint_path)
 
         print('=' * 83)
         print(
