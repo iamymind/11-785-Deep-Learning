@@ -11,7 +11,7 @@ class LSTMModel(nn.Module):
         super(LSTMModel, self).__init__()
 
         self.word_count = word_count
-        self.dropout = nn.Dropout(dropout_prob)
+        #self.dropout = nn.Dropout(dropout_prob)
         self.embedding = nn.Embedding(
             num_embeddings=word_count,
             embedding_dim=args.embedding_dim)
