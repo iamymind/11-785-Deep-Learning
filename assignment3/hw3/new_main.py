@@ -168,7 +168,7 @@ def main(argv):
             #print('X: ', X.shape, 'y: ', y.shape)
             #hidden = repackage_hidden(hidden)
             #out, hidden = model(X, hidden)
-            model.zero_grad()
+            #model.zero_grad()
 
             out = model(X)
             
