@@ -165,6 +165,7 @@ def main(argv):
             optimizer.zero_grad()
 
             X, y, seq_len = next(train_data_loader)
+            print('X: ', X.shape, 'y: ', y.shape)
             #hidden = repackage_hidden(hidden)
             #out, hidden = model(X, hidden)
             out = model(X)
