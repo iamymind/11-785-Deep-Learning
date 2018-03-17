@@ -156,24 +156,23 @@ def main(argv):
             optimizer.zero_grad()
 
             X, y, seq_len = next(train_data_loader)
-            model.zero_grad()
+
             out = model(X)
             loss = loss_fn(out, y)
-            print('loss: ', loss)
             loss.backward()
             # scale lr with respect the size of the seq_len
-            #utils.adjust_learning_rate(optimizer, args, seq_len)
+            utils.adjust_learning_rate(optimizer, args, seq_len)
             torch.nn.utils.clip_grad_norm(model.parameters(), 0.25)
             
-            #for p in model.parameters():
-            #    p.data.add_(-args.lr, p.grad.data)
+            for p in model.parameters():
+                p.data.add_(-args.lr, p.grad.data)
                 
             optimizer.step()
-            #utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
+            utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
 
             epoch_loss += loss.data.sum()
             batch_index += seq_len
-            if counter%200==0 and counter!=0:
+            if counter%30==0 and counter!=0:
                 print('|batch {:3d}|train loss {:5.2f}|'.format(
                         counter, 
                         epoch_loss/counter))

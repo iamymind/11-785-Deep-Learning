@@ -162,12 +162,14 @@ def main(argv):
         counter = 0
         while (batch_index < n_batchs - 1):
 
-            optimizer.zero_grad()
+            #optimizer.zero_grad()
 
             X, y, seq_len = next(train_data_loader)
             #print('X: ', X.shape, 'y: ', y.shape)
             #hidden = repackage_hidden(hidden)
             #out, hidden = model(X, hidden)
+            model.zero_grad()
+
             out = model(X)
             
             loss = loss_fn(out.view(-1, word_count), y)
@@ -180,12 +182,12 @@ def main(argv):
             for p in model.parameters():
                 p.data.add_(-args.lr, p.grad.data)
                 
-            optimizer.step()
+            #optimizer.step()
             #utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
 
             epoch_loss += loss.data.sum()
             batch_index += seq_len
-            if counter%100==0 and counter!=0:
+            if counter%200==0 and counter!=0:
                 print('|batch {:3d}|train loss {:5.2f}|'.format(
                         counter, 
                         epoch_loss/counter))
