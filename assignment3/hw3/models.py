@@ -101,11 +101,11 @@ class LSTMModelSingle(nn.Module):
         self.dropout = nn.Dropout(dropout_prob)
         self.embedding = nn.Embedding(
             num_embeddings=word_count,
-            embedding_dim=args.embedding_dim)
+            embedding_dim=embedding_dim)
         self.rnn = nn.LSTM(embedding_dim, hidden_dim, 3, dropout=dropout_prob)
 
         self.projection = nn.Linear(
-            in_features=args.embedding_dim,
+            in_features=embedding_dim,
             out_features=word_count)
         # weight tieing
         self.embedding.weight = self.projection.weight
