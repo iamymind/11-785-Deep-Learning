@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 
 import utils
 import models
-
+from torch.autograd import Variable
+import torch
 
 def validate(model, val_loader, loss_fn, n_batchs):
 
