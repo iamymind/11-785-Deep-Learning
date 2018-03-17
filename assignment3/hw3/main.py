@@ -156,7 +156,7 @@ def main(argv):
             optimizer.zero_grad()
 
             X, y, seq_len = next(train_data_loader)
-
+            model.zero_grad()
             out = model(X)
             loss = loss_fn(out, y)
             print('loss: ', loss)
