@@ -20,9 +20,10 @@ def validate(model, val_loader, loss_fn, n_batchs, word_count):
     val_loss = 0
     batch_index = 0
     counter = 0
+    hidden = model.init_hidden(20)
     while (batch_index < n_batchs - 1):
         X, y, seq_len = next(val_loader)
-        out = model(X)
+        out, hidden = model(X, hidden)
         loss = loss_fn(out.view(-1, word_count), y)
         batch_index += seq_len
         val_loss += loss.data.sum()
