@@ -162,13 +162,13 @@ def main(argv):
         counter = 0
         while (batch_index < n_batchs - 1):
 
-            optimizer.zero_grad()
+            #optimizer.zero_grad()
 
             X, y, seq_len = next(train_data_loader)
             #print('X: ', X.shape, 'y: ', y.shape)
             #hidden = repackage_hidden(hidden)
             #out, hidden = model(X, hidden)
-            #model.zero_grad()
+            model.zero_grad()
 
             out = model(X)
             
@@ -177,12 +177,12 @@ def main(argv):
             loss.backward()
             # scale lr with respect the size of the seq_len
             #utils.adjust_learning_rate(optimizer, args, seq_len)
-            torch.nn.utils.clip_grad_norm(model.parameters(), 0.25)
+            torch.nn.utils.clip_grad_norm(model.parameters(), 0.5)
             
-            #for p in model.parameters():
-            #    p.data.add_(-args.lr, p.grad.data)
+            for p in model.parameters():
+                p.data.add_(-args.lr, p.grad.data)
                 
-            optimizer.step()
+            #optimizer.step()
             #utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
 
             epoch_loss += loss.data.sum()
