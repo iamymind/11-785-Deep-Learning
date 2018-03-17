@@ -168,7 +168,7 @@ def main(argv):
             for p in model.parameters():
                 p.data.add_(-args.lr, p.grad.data)
                 
-            optimizer.step()
+            #optimizer.step()
             #utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
 
             epoch_loss += loss.data.sum()
