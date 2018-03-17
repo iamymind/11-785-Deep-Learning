@@ -90,7 +90,7 @@ def main(argv):
 
     # Count each word
     vocab_size = vocabulary.shape[0]
-    counter = Counter(train_data)
+    counter = Counter(np.concatenate(train_data))
     word_counts = np.array([counter[i] for i in range(vocab_size)], dtype=np.float32)
     word_count = np.sum(word_counts)
 
