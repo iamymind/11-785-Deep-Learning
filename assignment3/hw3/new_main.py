@@ -27,6 +27,12 @@ def validate(model, val_loader, loss_fn, n_batchs):
         counter+=1
     return val_loss/counter
 
+def repackage_hidden(h):
+    """Wraps hidden states in new Variables, to detach them from their history."""
+    if type(h) == Variable:
+        return Variable(h.data)
+    else:
+        return tuple(repackage_hidden(v) for v in h)
 
 
 def main(argv):
