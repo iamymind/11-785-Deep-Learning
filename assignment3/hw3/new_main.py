@@ -14,7 +14,7 @@ from torch.autograd import Variable
 import torch
 from collections import Counter
 
-def validate(model, val_loader, loss_fn, n_batchs):
+def validate(model, val_loader, loss_fn, n_batchs, word_count):
 
     model.eval()
     val_loss = 0
@@ -23,7 +23,7 @@ def validate(model, val_loader, loss_fn, n_batchs):
     while (batch_index < n_batchs - 1):
         X, y, seq_len = next(val_loader)
         out = model(X)
-        loss = loss_fn(out, y)
+        loss = loss_fn(out.view(-1, word_count), y)
         batch_index += seq_len
         val_loss += loss.data.sum()
         counter+=1
@@ -195,7 +195,7 @@ def main(argv):
             counter += 1
 
         train_loss = epoch_loss / counter
-        val_loss = validate(model, val_data_loader, loss_fn, n_batchs_val) 
+        val_loss = validate(model, val_data_loader, loss_fn, n_batchs_val, word_count) 
 
         logging['loss'].append(train_loss)
         logging['val_loss'].append(val_loss)
