@@ -88,11 +88,11 @@ def main(argv):
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model = models.RNNModel(rnn_type='LSTM',word_count,1150,1150,3, dropout=0.5, tie_weights=True)
+        model = models.RNNModel('LSTM',word_count,1150,1150,3, dropout=0.5, tie_weights=True)
     else:
         print("Using pre-trained model")
         print("*" * 90)
-        model = models.RNNModel(rnn_type='LSTM',word_count,1150,1150,3, dropout=0.5, tie_weights=True)
+        model = models.RNNModel('LSTM',word_count,1150,1150,3, dropout=0.5, tie_weights=True)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
 
