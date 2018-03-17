@@ -65,7 +65,7 @@ def main(argv):
                         help='Hidden dim')
     parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
-    parser.add_argument('--lr', type=int, default=1e-2, metavar='N',
+    parser.add_argument('--lr', type=int, default=1e-3, metavar='N',
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
@@ -196,8 +196,8 @@ def main(argv):
             #utils.adjust_learning_rate(optimizer, args, seq_len)
             torch.nn.utils.clip_grad_norm(model.parameters(), 0.25)
             
-            #for p in model.parameters():
-            #    p.data.add_(-args.lr, p.grad.data)
+            for p in model.parameters():
+                p.data.add_(-args.lr, p.grad.data)
                 
             optimizer.step()
             #utils.adjust_learning_rate(optimizer, args, args.base_seq_len)
@@ -216,7 +216,7 @@ def main(argv):
 
         logging['loss'].append(train_loss)
         logging['val_loss'].append(val_loss)
-        utils.save_model(model, checkpoint_path)
+        utils.save_model(model, 'best_so_far.pt')
 
         print('=' * 83)
         print(
