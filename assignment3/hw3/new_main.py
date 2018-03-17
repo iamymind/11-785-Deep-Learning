@@ -64,7 +64,7 @@ def main(argv):
                         help='Hidden dim')
     parser.add_argument('--embedding-dim', type=int, default=1150, metavar='N',
                         help='Embedding dim')
-    parser.add_argument('--lr', type=int, default=20, metavar='N',
+    parser.add_argument('--lr', type=int, default=1e-2, metavar='N',
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
@@ -95,11 +95,11 @@ def main(argv):
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model = models.RNNModel('LSTM',word_count,1150,1150,3, dropout=0.5, tie_weights=True)
+        model = models.RNNModel('LSTM',word_count,200,200,3, dropout=0.5, tie_weights=True)
     else:
         print("Using pre-trained model")
         print("*" * 90)
-        model = models.RNNModel('LSTM',word_count,1150,1150,3, dropout=0.5, tie_weights=True)
+        model = models.RNNModel('LSTM',word_count,200,200,3, dropout=0.5, tie_weights=True)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
 
@@ -185,7 +185,7 @@ def main(argv):
             if counter%10==0 and counter!=0:
                 print('|batch {:3d}|train loss {:5.2f}|'.format(
                         counter, 
-                        epoch_loss/counter/args.batch_size))
+                        epoch_loss/counter))
                 
             counter += 1
 
