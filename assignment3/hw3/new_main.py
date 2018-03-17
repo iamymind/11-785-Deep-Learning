@@ -65,7 +65,7 @@ def main(argv):
                         help='Hidden dim')
     parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
-    parser.add_argument('--lr', type=int, default=20, metavar='N',
+    parser.add_argument('--lr', type=int, default=30, metavar='N',
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
