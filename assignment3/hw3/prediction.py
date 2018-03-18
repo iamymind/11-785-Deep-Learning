@@ -11,12 +11,15 @@ def prediction(inp):
     :param inp: array of words (batch size, sequence length) [0-labels]
     :return: array of scores for the next word (batch size, labels)
     """
+    """
     model_path = os.path.join(
         os.path.dirname(
             os.path.dirname(
                 os.path.abspath(__file__))),
         'models',
         'drop-out-training.pt')
+    """    
+    model_path = '/content/11-785-Deep-Learning/assignment3/models/drop-out-training.pt'    
     #chunk_path = model_path + '.npy.{}'  # format for each chunk
     #data = chunks.read_chunks(chunk_path)
     # Load the data
