@@ -74,7 +74,7 @@ def main(argv):
     parser.add_argument(
         '--tag',
         type=str,
-        default='hopefully_best.pt',
+        default='hopefully_best_new.pt',
         metavar='N',
         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
