@@ -115,6 +115,7 @@ class LSTMModelSingle(nn.Module):
         self.hidden_dim = hidden_dim
 
     def forward(self, x, hidden, forward=0, stochastic=False):
+        
         emb = self.dropout(self.embedding(x))
         output, hidden = self.rnn(emb, hidden)
         output = self.dropout(output)
@@ -146,7 +147,38 @@ class LSTMModelSingle(nn.Module):
         return (Variable(weight.new(3, bsz, self.hidden_dim).zero_()),
                     Variable(weight.new(3, bsz, self.hidden_dim).zero_()))
 
+    def generate(self,x, hidden, forward):
 
+        emb = self.dropout(self.embedding(x))  # (n, t, c)
+        output, hidden = self.rnn(emb, hidden)
+        output  = self.dropout(output)
+        h = self.projection(output.view(output.size(0)*output.size(1), output.size(2)))
+        
+        gumbel = utils.to_variable(
+                utils.sample_gumbel(
+                    shape=h.size(),
+                    out=h.data.new()))
+ 
+        h += gumbel
+        logits   = h
+        outputs  = []
+        h = torch.max(logits[:, -1:, :], dim=2)[1] + 1
+        
+        for i in range(forward):
+            emb = self.dropout(self.embedding(h))
+            h, hidden = self.rnn(emb, hidden)
+            h  = self.dropout(h)
+            h = self.projection(output.view(h.size(0)*h.size(1), h.size(2)))
+            gumbel  = utils.to_variable(
+                    utils.sample_gumbel(
+                        shape=h.size(), out=h.data.new()))
+            h += gumbel
+            outputs.append(h)
+            h  = torch.max(h, dim=2)[1] + 1
+        logits = torch.cat([logits] + outputs, dim=1)
+        
+        return logits 
+        
 class LSTMModelV2(nn.Module):
 
     def __init__(
