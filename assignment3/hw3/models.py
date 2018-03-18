@@ -162,6 +162,7 @@ class LSTMModelSingle(nn.Module):
         h += gumbel
         logits   = h
         outputs  = []
+        print('logits : ', logits.shape)
         h = torch.max(logits[:, -1:, :], dim=2)[1] + 1
         
         for i in range(forward):
