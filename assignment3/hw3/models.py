@@ -170,7 +170,7 @@ class LSTMModelSingle(nn.Module):
             print('emb shape: ', emb.shape)
             h, hidden = self.rnn(emb, hidden)
             h  = self.dropout(h)
-            h = self.projection(output.view(h.size(0)*h.size(1), h.size(2)))
+            h  = self.projection(h)
             gumbel  = utils.to_variable(
                     utils.sample_gumbel(
                         shape=h.size(), out=h.data.new()))
