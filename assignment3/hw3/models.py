@@ -164,7 +164,7 @@ class LSTMModelSingle(nn.Module):
         outputs  = []
         print('logits : ', logits.shape)
         h = torch.max(logits[:, -1:, :], dim=2)[1] + 1
-        
+        hidden = self.init_hidden(1)
         for i in range(forward):
             emb = self.dropout(self.embedding(h))
             print('emb shape: ', emb.shape)
@@ -232,6 +232,7 @@ class LSTMModelV2(nn.Module):
         if forward > 0:
             outputs = []
             h = torch.max(logits[:, -1:, :], dim=2)[1] + 1
+            
             for i in range(forward):
                 h = self.embedding(h)
                 for j, rnn in enumerate(self.rnns):
