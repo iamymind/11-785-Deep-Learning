@@ -9,7 +9,7 @@ import numpy as np
 
 class LSTMModel(nn.Module):
 
-    def __init__(self, word_count,embedding_dim, hidden_dim, dropout_prob=0.2):
+    def __init__(self, word_count,embedding_dim, hidden_dim, dropout_prob=0.5):
 
         super(LSTMModel, self).__init__()
 
