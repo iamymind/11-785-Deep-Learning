@@ -137,11 +137,11 @@ def main(argv):
             np.concatenate(val_data)),
         args.eval_batch_size)
     val_data_loader = utils.custom_data_loader(val_data_, args, evaluation=True)
-    X, y, seq_len = next(val_data_loader)
-    model.eval()
-    hidden = model.init_hidden(args.batch_size)
-    output = model.generate(X, hidden, 10)
-    print('output: ', output.shape)
+    #X, y, seq_len = next(val_data_loader)
+    #model.eval()
+    #hidden = model.init_hidden(args.batch_size)
+    #output = model.generate(X, hidden, 10)
+    #print('output: ', output.shape)
     model.train()   
     return
     for epoch in range(args.epochs):

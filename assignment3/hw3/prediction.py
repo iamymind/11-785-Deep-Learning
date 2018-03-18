@@ -17,15 +17,18 @@ def prediction(inp):
             os.path.dirname(
                 os.path.abspath(__file__))),
         'models',
-        'lr-1e-2-base.pt')
-    chunk_path = model_path + '.npy.{}'  # format for each chunk
-    data = chunks.read_chunks(chunk_path)
+        'drop-out-training.pt')
+    #chunk_path = model_path + '.npy.{}'  # format for each chunk
+    #data = chunks.read_chunks(chunk_path)
     # Load the data
-    state_dict = chunks.load_from_numpy(data)
-    model = models.LSTMModelV2(33278, 400, 1150)
-    print(model)
+    #state_dict = chunks.load_from_numpy(data)
+    word_count = 33278
+    embedding_dim = 200
+    hidden_dim = 200
+    model = models.LSTMModelSingle(word_count,embedding_dim, hidden_dim)
+    #print(model)
     # Load dictionary into your model
-    model.load_state_dict(state_dict)
+    model.load_state_dict(torch.load(model_path))
     model.eval()
     if torch.cuda.is_available():
         model = model.cuda()
