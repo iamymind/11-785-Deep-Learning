@@ -23,12 +23,12 @@ def validate(model, val_loader, loss_fn, n_batchs, word_count):
     hidden = model.init_hidden(20)
     while (batch_index < n_batchs - 1):
         X, y, seq_len = next(val_loader)
-        out = model(X, hidden)
+        out, hidden = model(X, hidden)
         loss = loss_fn(out.view(-1, word_count), y)
         batch_index += seq_len
         val_loss += loss.data.sum()
         counter+=1
-        hidden = model.init_hidden(20)
+    hidden = model.init_hidden(20)    
     return val_loss/counter
 
 def repackage_hidden(h):
@@ -63,9 +63,9 @@ def main(argv):
                         help='prob of being divided by 2'),
     parser.add_argument('--seq-std', type=int, default=5, metavar='N',
                         help='squence length std'),
-    parser.add_argument('--hidden-dim', type=int, default=400, metavar='N',
+    parser.add_argument('--hidden-dim', type=int, default=200, metavar='N',
                         help='Hidden dim')
-    parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
+    parser.add_argument('--embedding-dim', type=int, default=200, metavar='N',
                         help='Embedding dim')
     parser.add_argument('--lr', type=int, default=20, metavar='N',
                         help='learning rate'),
@@ -74,7 +74,7 @@ def main(argv):
     parser.add_argument(
         '--tag',
         type=str,
-        default='hopefully_best_new.pt',
+        default='drop-out-training.pt',
         metavar='N',
         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -136,7 +136,6 @@ def main(argv):
     model.train()
     #hidden = model.init_hidden(args.batch_size)
     
-
     for epoch in range(args.epochs):
 
         epoch_time = time.time()
@@ -150,8 +149,8 @@ def main(argv):
                 np.concatenate(val_data)),
             args.eval_batch_size)
         train_data_loader = utils.custom_data_loader(train_data_, args, evaluation=True)
-
-        val_data_loader = utils.custom_data_loader(val_data_, args, evaluation=True)
+        val_data_loader = utils.custom_data_loader(
+            val_data_, args, evaluation=True)
         # number of words
         train_size = train_data_.size(0) * train_data_.size(1)
         val_size = val_data_.size(0) * val_data_.size(1)
@@ -170,12 +169,11 @@ def main(argv):
 
             X, y, seq_len = next(train_data_loader)
             #print('X: ', X.shape, 'y: ', y.shape)
-            #hidden = repackage_hidden(hidden)
+            hidden = repackage_hidden(hidden)
             #out, hidden = model(X, hidden)
             model.zero_grad()
 
             out, hidden = model(X, hidden)
-            #out = model(X)
             
             loss = loss_fn(out.view(-1, word_count), y)
             
