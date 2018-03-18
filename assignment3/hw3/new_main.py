@@ -67,14 +67,14 @@ def main(argv):
                         help='Hidden dim')
     parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
                         help='Embedding dim')
-    parser.add_argument('--lr', type=int, default=20, metavar='N',
+    parser.add_argument('--lr', type=int, default=15, metavar='N',
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
     parser.add_argument(
         '--tag',
         type=str,
-        default='hopefully_best.pt',
+        default='lr-15.pt',
         metavar='N',
         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
