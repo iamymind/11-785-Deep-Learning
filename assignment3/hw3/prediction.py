@@ -1,6 +1,5 @@
-import hw3.models as models
-import hw3.chunks as chunks
-import hw3.utils as utils
+import models
+import utils
 import torch
 import os
 
