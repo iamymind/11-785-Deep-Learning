@@ -141,7 +141,7 @@ def main(argv):
     model.eval()
     hidden = model.init_hidden(args.batch_size)
     output = model.generate(X, hidden, 10)
-    print(output.shape)
+    print('output: ', output.shape)
     model.train()   
     return
     for epoch in range(args.epochs):

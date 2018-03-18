@@ -153,7 +153,6 @@ class LSTMModelSingle(nn.Module):
         output, hidden = self.rnn(emb, hidden)
         output  = self.dropout(output)
         h = self.projection(output)
-        print('h shape: ', h.shape)
         gumbel = utils.to_variable(
                 utils.sample_gumbel(
                     shape=h.size(),
@@ -162,12 +161,10 @@ class LSTMModelSingle(nn.Module):
         h += gumbel
         logits   = h
         outputs  = []
-        print('logits : ', logits.shape)
         h = torch.max(logits[:, -1:, :], dim=2)[1] + 1
         hidden = self.init_hidden(1)
         for i in range(forward):
             emb = self.dropout(self.embedding(h))
-            print('emb shape: ', emb.shape)
             h, hidden = self.rnn(emb, hidden)
             h  = self.dropout(h)
             h  = self.projection(h)
