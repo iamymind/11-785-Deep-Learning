@@ -167,6 +167,7 @@ class LSTMModelSingle(nn.Module):
         
         for i in range(forward):
             emb = self.dropout(self.embedding(h))
+            print('emb shape: ', emb.shape)
             h, hidden = self.rnn(emb, hidden)
             h  = self.dropout(h)
             h = self.projection(output.view(h.size(0)*h.size(1), h.size(2)))
