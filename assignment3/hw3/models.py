@@ -152,8 +152,8 @@ class LSTMModelSingle(nn.Module):
         emb = self.dropout(self.embedding(x))  # (n, t, c)
         output, hidden = self.rnn(emb, hidden)
         output  = self.dropout(output)
-        h = self.projection(output.view(output.size(0)*output.size(1), output.size(2)))
-        
+        h = self.projection(output)
+        print('h shape: ', h.shape)
         gumbel = utils.to_variable(
                 utils.sample_gumbel(
                     shape=h.size(),
