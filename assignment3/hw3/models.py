@@ -9,7 +9,7 @@ import numpy as np
 
 class LSTMModel(nn.Module):
 
-    def __init__(self, word_count, args, dropout_prob=0.2):
+    def __init__(self, word_count,embedding_dim, hidden_dim, dropout_prob=0.2):
 
         super(LSTMModel, self).__init__()
 
@@ -17,18 +17,18 @@ class LSTMModel(nn.Module):
         self.dropout = nn.Dropout(dropout_prob)
         self.embedding = nn.Embedding(
             num_embeddings=word_count,
-            embedding_dim=args.embedding_dim)
+            embedding_dim=embedding_dim)
 
         self.rnns = nn.ModuleList([
-            nn.LSTM(input_size=args.embedding_dim, hidden_size=args.hidden_dim,
+            nn.LSTM(input_size=embedding_dim, hidden_size=hidden_dim,
                     batch_first=True),
-            nn.LSTM(input_size=args.hidden_dim, hidden_size=args.hidden_dim,
+            nn.LSTM(input_size=hidden_dim, hidden_size=hidden_dim,
                     batch_first=True),
-            nn.LSTM(input_size=args.hidden_dim, hidden_size=args.embedding_dim,
+            nn.LSTM(input_size=hidden_dim, hidden_size=embedding_dim,
                     batch_first=True)])
 
         self.projection = nn.Linear(
-            in_features=args.embedding_dim,
+            in_features=embedding_dim,
             out_features=word_count)
         # weight tieing
         self.embedding.weight = self.projection.weight

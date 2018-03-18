@@ -20,14 +20,15 @@ def validate(model, val_loader, loss_fn, n_batchs, word_count):
     val_loss = 0
     batch_index = 0
     counter = 0
-    hidden = model.init_hidden(20)
+    #hidden = model.init_hidden(20)
     while (batch_index < n_batchs - 1):
         X, y, seq_len = next(val_loader)
-        out, hidden = model(X, hidden)
+        out = model(X)
         loss = loss_fn(out.view(-1, word_count), y)
         batch_index += seq_len
         val_loss += loss.data.sum()
         counter+=1
+        #hidden = model.init_hidden(20)
     return val_loss/counter
 
 def repackage_hidden(h):
@@ -73,7 +74,7 @@ def main(argv):
     parser.add_argument(
         '--tag',
         type=str,
-        default='drop-out-training.pt',
+        default='hopefully_best.pt',
         metavar='N',
         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -97,11 +98,11 @@ def main(argv):
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model = models.LSTMModelSingle(word_count, args.embedding_dim, args.hidden_dim)
+        model = models.LSTMModel(word_count, args.embedding_dim, args.hidden_dim)
     else:
         print("Using pre-trained model")
         print("*" * 90)
-        model = models.LSTMModelSingle(word_count, args.embedding_dim, args.hidden_dim)
+        model = models.LSTMModel(word_count, args.embedding_dim, args.hidden_dim)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
 
@@ -161,18 +162,19 @@ def main(argv):
         batch_index = 0
         seq_len = 0
         counter = 0
-        hidden = model.init_hidden(args.batch_size)
+        #hidden = model.init_hidden(args.batch_size)
         while (batch_index < n_batchs - 1):
 
             #optimizer.zero_grad()
 
             X, y, seq_len = next(train_data_loader)
             #print('X: ', X.shape, 'y: ', y.shape)
-            hidden = repackage_hidden(hidden)
+            #hidden = repackage_hidden(hidden)
             #out, hidden = model(X, hidden)
             model.zero_grad()
 
-            out, hidden = model(X, hidden)
+            #out, hidden = model(X, hidden)
+            out = model(X)
             
             loss = loss_fn(out.view(-1, word_count), y)
             
