@@ -19,7 +19,7 @@ def prediction(inp):
         'models',
         'drop-out-training.pt')
     """    
-    model_path = '/content/11-785-Deep-Learning/assignment3/models/hw3/drop-out-training.pt'    
+    model_path = '/content/11-785-Deep-Learning/assignment3/hw3/models/drop-out-training.pt'    
     #chunk_path = model_path + '.npy.{}'  # format for each chunk
     #data = chunks.read_chunks(chunk_path)
     # Load the data
