@@ -63,18 +63,18 @@ def main(argv):
                         help='prob of being divided by 2'),
     parser.add_argument('--seq-std', type=int, default=5, metavar='N',
                         help='squence length std'),
-    parser.add_argument('--hidden-dim', type=int, default=1150, metavar='N',
+    parser.add_argument('--hidden-dim', type=int, default=200, metavar='N',
                         help='Hidden dim')
-    parser.add_argument('--embedding-dim', type=int, default=400, metavar='N',
+    parser.add_argument('--embedding-dim', type=int, default=200, metavar='N',
                         help='Embedding dim')
-    parser.add_argument('--lr', type=int, default=15, metavar='N',
+    parser.add_argument('--lr', type=int, default=20, metavar='N',
                         help='learning rate'),
     parser.add_argument('--weight-decay', type=int, default=2e-6, metavar='N',
                         help='learning rate'),
     parser.add_argument(
         '--tag',
         type=str,
-        default='lr-15.pt',
+        default='hopefully_best.pt',
         metavar='N',
         help='learning rate'),
     parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -98,11 +98,11 @@ def main(argv):
     checkpoint_path = os.path.join(args.model_save_directory, args.tag)
 
     if not os.path.exists(checkpoint_path):
-        model = models.LSTMModel(word_count, args.embedding_dim, args.hidden_dim)
+        model = models.LSTMModelSingle(word_count, args.embedding_dim, args.hidden_dim)
     else:
         print("Using pre-trained model")
         print("*" * 90)
-        model = models.LSTMModel(word_count, args.embedding_dim, args.hidden_dim)
+        model = models.LSTMModelSingle(word_count, args.embedding_dim, args.hidden_dim)
         checkpoint_path = os.path.join(args.model_save_directory, args.tag)
         model.load_state_dict(torch.load(checkpoint_path))
 
